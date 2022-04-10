@@ -1,18 +1,12 @@
 package com.example.myadapter
 
-import android.net.Uri
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.widget.Toast
+import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.RecyclerView
 import com.example.myadapter.databinding.ActivityMainBinding
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
-import java.util.*
-import kotlin.concurrent.thread
-import kotlin.coroutines.CoroutineContext
+
 
 class MainActivity : AppCompatActivity() {
 
@@ -38,6 +32,7 @@ class MainActivity : AppCompatActivity() {
 
         onClick()
         setupSwipeListener(binding.rvItems)
+        onDragItem(binding.rvItems)
     }
 
     private fun init() {
@@ -52,12 +47,7 @@ class MainActivity : AppCompatActivity() {
         adapter.onWeatherClickListener = {
             Toast.makeText(this, "You clicked on weather", Toast.LENGTH_SHORT).show()
         }
-        adapter.onNewsLongClickListener = {
 
-        }
-        adapter.onWeatherLongClickListener = {
-
-        }
     }
 
     private fun swipeRefresh() {
@@ -75,6 +65,58 @@ class MainActivity : AppCompatActivity() {
         adapter.submitList(items)
         binding.rvItems.adapter = adapter
         binding.swipeRefreshLayout.isRefreshing = false
+    }
+
+    private fun onDragItem(rvItem: RecyclerView) {
+        val callback = object : ItemTouchHelper.SimpleCallback(
+            0,
+            ItemTouchHelper.LEFT
+        ) {
+
+            override fun onMove(
+                recyclerView: RecyclerView,
+                viewHolder: RecyclerView.ViewHolder,
+                target: RecyclerView.ViewHolder
+            ): Boolean {
+                recyclerView.adapter?.notifyItemMoved(viewHolder.adapterPosition, target.adapterPosition);
+                val firstItem = adapter.differ.currentList[viewHolder.adapterPosition]
+                val secondItem = adapter.differ.currentList[target.adapterPosition]
+                when {
+                    firstItem is News -> {
+                        items.set(firstItem.id, secondItem)
+                    }
+                    firstItem is Weather -> {
+                        items.set(firstItem.id, secondItem)
+                    }
+                    secondItem is News -> {
+                        items.set(secondItem.id, firstItem)
+                    }
+                    secondItem is Weather -> {
+                        items.set(secondItem.id, firstItem)
+                    }
+                }
+                return true;
+            }
+
+            override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int) {
+                TODO()
+            }
+
+            override fun isItemViewSwipeEnabled(): Boolean {
+                return false
+            }
+
+            override fun getMovementFlags(
+                recyclerView: RecyclerView,
+                viewHolder: RecyclerView.ViewHolder
+            ): Int {
+                val dragFlags = ItemTouchHelper.UP or ItemTouchHelper.DOWN
+                val swipeFlags = 0
+                return makeMovementFlags(dragFlags, swipeFlags)
+            }
+        }
+        val itemTouchHelper = ItemTouchHelper(callback)
+        itemTouchHelper.attachToRecyclerView(rvItem)
     }
 
     private fun setupSwipeListener(rvItem: RecyclerView) {

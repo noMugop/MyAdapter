@@ -1,26 +1,23 @@
 package com.example.myadapter
 
 import android.view.LayoutInflater
-import android.view.View
 import android.view.ViewGroup
-import android.widget.Adapter
 import androidx.recyclerview.widget.AsyncListDiffer
 import androidx.recyclerview.widget.DiffUtil
-import androidx.recyclerview.widget.ListAdapter
+import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.RecyclerView
 import com.example.myadapter.databinding.ItemNewsBinding
 import com.example.myadapter.databinding.ItemWeatherBinding
 import com.example.myadapter.viewHolders.NewsViewHolder
 import com.example.myadapter.viewHolders.WeatherViewHolder
-import java.lang.RuntimeException
 
 class DataAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
 
     var onNewsClickListener: ((News) -> Unit)? = null
-    var onNewsLongClickListener: ((News) -> Unit)? = null
+    var onNewsLongClickListener: ((RecyclerView.ViewHolder) -> Unit)? = null
 
     var onWeatherClickListener: ((Weather) -> Unit)? = null
-    var onWeatherLongClickListener: ((Weather) -> Unit)? = null
+    var onWeatherLongClickListener: ((RecyclerView.ViewHolder) -> Unit)? = null
 
     private val diffCallback = object : DiffUtil.ItemCallback<Any>() {
         override fun areItemsTheSame(oldItem: Any, newItem: Any): Boolean {
@@ -90,8 +87,9 @@ class DataAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
                 view.cardView.setOnClickListener {
                     onNewsClickListener?.invoke(item)
                 }
-                view.cardView.setOnClickListener {
-                    onNewsLongClickListener?.invoke(item)
+                view.cardView.setOnLongClickListener {
+                    onNewsLongClickListener?.invoke(viewHolder)
+                    return@setOnLongClickListener true
                 }
             }
             WEATHER_ITEM -> {
@@ -105,8 +103,9 @@ class DataAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
                 view.cardView.setOnClickListener {
                     onWeatherClickListener?.invoke(item)
                 }
-                view.cardView.setOnClickListener {
-                    onWeatherLongClickListener?.invoke(item)
+                view.cardView.setOnLongClickListener {
+                    onWeatherLongClickListener?.invoke(viewHolder)
+                    return@setOnLongClickListener true
                 }
             }
 
@@ -119,7 +118,6 @@ class DataAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
             is Weather -> WEATHER_ITEM
             else -> throw IllegalStateException("Incorrect ViewType found")
         }
-
 
     override fun getItemCount(): Int = differ.currentList.size
 
