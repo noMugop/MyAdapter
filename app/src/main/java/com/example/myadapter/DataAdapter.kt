@@ -108,7 +108,6 @@ class DataAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
                     return@setOnLongClickListener true
                 }
             }
-
         }
     }
 

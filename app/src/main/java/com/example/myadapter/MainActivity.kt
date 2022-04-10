@@ -70,7 +70,7 @@ class MainActivity : AppCompatActivity() {
     private fun onDragItem(rvItem: RecyclerView) {
         val callback = object : ItemTouchHelper.SimpleCallback(
             0,
-            ItemTouchHelper.LEFT
+            ItemTouchHelper.ACTION_STATE_DRAG
         ) {
 
             override fun onMove(
@@ -95,7 +95,7 @@ class MainActivity : AppCompatActivity() {
                         items.set(secondItem.id, firstItem)
                     }
                 }
-                return true;
+                return true
             }
 
             override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int) {
