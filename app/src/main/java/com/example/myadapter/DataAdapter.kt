@@ -17,8 +17,10 @@ import java.lang.RuntimeException
 class DataAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
 
     var onNewsClickListener: ((News) -> Unit)? = null
+    var onNewsLongClickListener: ((News) -> Unit)? = null
 
     var onWeatherClickListener: ((Weather) -> Unit)? = null
+    var onWeatherLongClickListener: ((Weather) -> Unit)? = null
 
     private val diffCallback = object : DiffUtil.ItemCallback<Any>() {
         override fun areItemsTheSame(oldItem: Any, newItem: Any): Boolean {
@@ -88,6 +90,9 @@ class DataAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
                 view.cardView.setOnClickListener {
                     onNewsClickListener?.invoke(item)
                 }
+                view.cardView.setOnClickListener {
+                    onNewsLongClickListener?.invoke(item)
+                }
             }
             WEATHER_ITEM -> {
                 val viewHolder = holder as WeatherViewHolder
@@ -99,6 +104,9 @@ class DataAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
                 }
                 view.cardView.setOnClickListener {
                     onWeatherClickListener?.invoke(item)
+                }
+                view.cardView.setOnClickListener {
+                    onWeatherLongClickListener?.invoke(item)
                 }
             }
 

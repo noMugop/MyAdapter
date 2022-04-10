@@ -10,6 +10,7 @@ import com.example.myadapter.databinding.ActivityMainBinding
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import java.util.*
 import kotlin.concurrent.thread
 import kotlin.coroutines.CoroutineContext
 
@@ -19,8 +20,7 @@ class MainActivity : AppCompatActivity() {
         ActivityMainBinding.inflate(layoutInflater)
     }
 
-    private lateinit var news: MutableList<News>
-    private lateinit var weather: MutableList<Weather>
+    private lateinit var items: MutableList<Any>
     private val adapter = DataAdapter()
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -29,7 +29,7 @@ class MainActivity : AppCompatActivity() {
 
         init()
 
-        adapter.submitList(news + weather)
+        adapter.submitList(items)
         binding.rvItems.adapter = adapter
 
         binding.swipeRefreshLayout.setOnRefreshListener {
@@ -41,8 +41,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun init() {
-        news = listOfNews()
-        weather = listOfWeather()
+        items = listOfItems()
     }
 
     private fun onClick() {
@@ -53,15 +52,28 @@ class MainActivity : AppCompatActivity() {
         adapter.onWeatherClickListener = {
             Toast.makeText(this, "You clicked on weather", Toast.LENGTH_SHORT).show()
         }
+        adapter.onNewsLongClickListener = {
+
+        }
+        adapter.onWeatherLongClickListener = {
+
+        }
     }
 
     private fun swipeRefresh() {
         binding.swipeRefreshLayout.isRefreshing = true
-        news.add(News(id = countNews, title = "Title $countNews", news = "News $countNews"))
-        countNews++
-        weather.add(Weather(id = countWeather, city = "City $countWeather", overview = "Overview $countWeather"))
-        countWeather++
-        (binding.rvItems.adapter as DataAdapter).submitList(news + weather)
+        items.add(News(id = count, title = "Title $count", news = "News $count"))
+        count++
+        items.add(
+            Weather(
+                id = count,
+                city = "City $count",
+                overview = "Overview $count"
+            )
+        )
+        count++
+        adapter.submitList(items)
+        binding.rvItems.adapter = adapter
         binding.swipeRefreshLayout.isRefreshing = false
     }
 
@@ -82,14 +94,15 @@ class MainActivity : AppCompatActivity() {
             override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int) {
                 val item = adapter.differ.currentList[viewHolder.adapterPosition]
                 if (item is News) {
-                    news.removeAt(item.id)
-                    countNews--
-                    (binding.rvItems.adapter as DataAdapter).submitList(news + weather)
-
-                } else if (item is Weather){
-                    weather.removeAt(item.id)
-                    countWeather--
-                    (binding.rvItems.adapter as DataAdapter).submitList(news + weather)
+                    items.remove(item)
+                    count--
+                    adapter.submitList(items)
+                    binding.rvItems.adapter = adapter
+                } else if (item is Weather) {
+                    items.remove(item)
+                    count--
+                    adapter.submitList(items)
+                    binding.rvItems.adapter = adapter
                 }
             }
         }
@@ -97,25 +110,18 @@ class MainActivity : AppCompatActivity() {
         itemTouchHelper.attachToRecyclerView(rvItem)
     }
 
-    private fun listOfNews(): MutableList<News> {
+    private fun listOfItems(): MutableList<Any> {
 
         return mutableListOf(
-            News(0, getString(R.string.Title1), getString(R.string.News1)),
-            News(1, getString(R.string.Title2), getString(R.string.News2))
-        )
-    }
-
-    private fun listOfWeather(): MutableList<Weather> {
-
-        return mutableListOf(
-            Weather(0, "Алматы", "Температура +19, Сильный ветер"),
-            Weather(1, "Шымкент", "Температура +25, Солнечно")
+            News(count++, getString(R.string.Title1), getString(R.string.News1)),
+            News(count++, getString(R.string.Title2), getString(R.string.News2)),
+            Weather(count++, "Алматы", "Температура +19, Сильный ветер"),
+            Weather(count++, "Шымкент", "Температура +25, Солнечно")
         )
     }
 
     companion object {
 
-        var countNews = 2
-        var countWeather = 2
+        var count = 0
     }
 }
